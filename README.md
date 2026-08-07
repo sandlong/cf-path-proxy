@@ -15,8 +15,16 @@ PROXY_PATH = k8f3z7p2
 Then proxy URLs have this form:
 
 ```text
+https://<worker>/k8f3z7p2/<host>/<path>          # HTTPS by default
 https://<worker>/k8f3z7p2/https/<host>/<path>
 https://<worker>/k8f3z7p2/http/<host>/<path>
+```
+
+If the scheme component is omitted, HTTPS is assumed. These two URLs are therefore equivalent:
+
+```text
+https://<worker>/k8f3z7p2/example.com/path
+https://<worker>/k8f3z7p2/https/example.com/path
 ```
 
 For Gemini, the original base URL:
@@ -28,10 +36,10 @@ https://generativelanguage.googleapis.com
 becomes:
 
 ```text
-https://<worker>/k8f3z7p2/https/generativelanguage.googleapis.com
+https://<worker>/k8f3z7p2/generativelanguage.googleapis.com
 ```
 
-An SDK can append its normal API path to that base URL.
+The explicit `/https/` form remains supported. An SDK can append its normal API path to either base URL.
 
 Query strings are preserved. Methods, request bodies, and ordinary request headers are forwarded. Response bodies are streamed rather than buffered.
 

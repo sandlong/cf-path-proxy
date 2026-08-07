@@ -31,16 +31,16 @@ function parseTarget(requestUrl, proxyPath) {
 
   const remainder = requestUrl.pathname.slice(prefix.length);
   const firstSlash = remainder.indexOf("/");
-  if (firstSlash === -1) {
-    return null;
-  }
-
-  const scheme = remainder.slice(0, firstSlash).toLowerCase();
-  if (scheme !== "http" && scheme !== "https") {
-    throw new Error("Unsupported scheme. Use /http/ or /https/.");
-  }
-
-  const authorityAndPath = remainder.slice(firstSlash + 1);
+  const firstSegment = firstSlash === -1
+    ? remainder
+    : remainder.slice(0, firstSlash);
+  const explicitScheme = firstSegment.toLowerCase();
+  const hasExplicitScheme = firstSlash !== -1 &&
+    (explicitScheme === "http" || explicitScheme === "https");
+  const scheme = hasExplicitScheme ? explicitScheme : "https";
+  const authorityAndPath = hasExplicitScheme
+    ? remainder.slice(firstSlash + 1)
+    : remainder;
   const secondSlash = authorityAndPath.indexOf("/");
   const encodedAuthority = secondSlash === -1
     ? authorityAndPath
