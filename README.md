@@ -1,23 +1,31 @@
 # CF Path Proxy
 
-A tiny Cloudflare Worker that exposes an HTTP/HTTPS reverse proxy behind a configurable path prefix.
+A tiny Cloudflare Worker that exposes an HTTP/HTTPS reverse proxy with an optional secret path prefix.
 
 It is useful when an application lets you replace an API base URL but cannot directly reach the upstream service from its own network.
 
 ## URL format
 
-Set the Worker variable `PROXY_PATH` to a hard-to-guess path string, for example:
+Optionally set the Worker secret `SECRET_PATH` to a hard-to-guess path string, for example:
 
 ```text
-PROXY_PATH = k8f3z7p2
+SECRET_PATH = k8f3z7p2
 ```
 
-Then proxy URLs have this form:
+With `SECRET_PATH` set, proxy URLs have this form:
 
 ```text
 https://<worker>/k8f3z7p2/<host>/<path>          # HTTPS by default
 https://<worker>/k8f3z7p2/https/<host>/<path>
 https://<worker>/k8f3z7p2/http/<host>/<path>
+```
+
+If `SECRET_PATH` is unset or empty, the proxy works without the secret prefix:
+
+```text
+https://<worker>/<host>/<path>                  # HTTPS by default
+https://<worker>/https/<host>/<path>
+https://<worker>/http/<host>/<path>
 ```
 
 If the scheme component is omitted, HTTPS is assumed. These two URLs are therefore equivalent:
@@ -51,13 +59,13 @@ WebSocket upgrade responses are passed through intact when supported by the upst
 
 ## Deploy
 
-The project intentionally has no build system or deployment pipeline. Copy `worker.js` into a Cloudflare Worker and create a Worker variable named `PROXY_PATH`.
+The project intentionally has no build system or deployment pipeline. Copy `worker.js` into a Cloudflare Worker. To keep the proxy behind a hard-to-guess path, add a Worker secret named `SECRET_PATH`.
 
 For example, in the Cloudflare dashboard:
 
 1. Create a Worker.
 2. Replace its code with `worker.js`.
-3. Add a plain-text variable named `PROXY_PATH`.
+3. Optionally add a secret named `SECRET_PATH`.
 4. Deploy.
 
 ## Host with a port
@@ -73,7 +81,7 @@ IPv6 literals should use brackets and can be percent-encoded in the host compone
 
 ## Security model
 
-There is deliberately no authentication and no upstream allowlist. `PROXY_PATH` only makes the proxy URL hard to guess; it is not a security boundary. Anyone who learns the complete Worker URL can use the proxy.
+There is deliberately no authentication and no upstream allowlist. `SECRET_PATH` only makes the proxy URL hard to guess; it is not a security boundary. Anyone who learns the complete Worker URL can use the proxy. Without `SECRET_PATH`, anyone can use the proxy at its public Worker URL.
 
 Do not publish the full secret path if you intend the Worker to remain private in practice.
 

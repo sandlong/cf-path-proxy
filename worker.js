@@ -24,7 +24,7 @@ function corsHeaders(request) {
 }
 
 function parseTarget(requestUrl, proxyPath) {
-  const prefix = `/${proxyPath}/`;
+  const prefix = proxyPath ? `/${proxyPath}/` : "/";
   if (!requestUrl.pathname.startsWith(prefix)) {
     return null;
   }
@@ -92,7 +92,8 @@ function proxiedLocation(location, upstreamUrl, requestUrl, proxyPath) {
 
   const scheme = redirected.protocol.slice(0, -1);
   const authority = encodeURIComponent(redirected.host);
-  return `${requestUrl.origin}/${proxyPath}/${scheme}/${authority}${redirected.pathname}${redirected.search}${redirected.hash}`;
+  const pathPrefix = proxyPath ? `/${proxyPath}` : "";
+  return `${requestUrl.origin}${pathPrefix}/${scheme}/${authority}${redirected.pathname}${redirected.search}${redirected.hash}`;
 }
 
 function upstreamHeaders(request) {
@@ -117,10 +118,7 @@ function upstreamHeaders(request) {
 }
 
 async function proxyRequest(request, env) {
-  const proxyPath = normalizeProxyPath(env.PROXY_PATH);
-  if (!proxyPath) {
-    return new Response("PROXY_PATH is not configured.", { status: 500 });
-  }
+  const proxyPath = normalizeProxyPath(env.SECRET_PATH);
 
   const requestUrl = new URL(request.url);
 
