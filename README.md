@@ -59,14 +59,9 @@ WebSocket upgrade responses are passed through intact when supported by the upst
 
 ## Deploy
 
-The project intentionally has no build system or deployment pipeline. Copy `worker.js` into a Cloudflare Worker. To keep the proxy behind a hard-to-guess path, add a Worker secret named `SECRET_PATH`.
+The `cf-path-proxy` Worker is connected to this repository through Cloudflare Workers Builds. Push to `main` to deploy the Worker. The Worker name and entry point are declared in `wrangler.jsonc`.
 
-For example, in the Cloudflare dashboard:
-
-1. Create a Worker.
-2. Replace its code with `worker.js`.
-3. Optionally add a secret named `SECRET_PATH`.
-4. Deploy.
+For a manual deployment, run `npm ci` and `npm run deploy`. Optionally set a Worker secret named `SECRET_PATH` in Cloudflare to keep the proxy behind a hard-to-guess path. Existing Worker secrets persist across deployments.
 
 ## Host with a port
 

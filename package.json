@@ -1,0 +1,11 @@
+{
+  "name": "cf-path-proxy",
+  "private": true,
+  "scripts": {
+    "check": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.137.0"
+  }
+}
